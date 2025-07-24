@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Register Page
+{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f2f4f7;
+    }
+    .register-container {
+        max-width: 500px;
+        margin: 50px auto;
+    }
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    .form-label {
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 4px;
+    }
+    .form-control {
+        font-size: 0.9rem;
+        padding: 8px 10px;
+    }
+    .btn-primary {
+        font-size: 0.9rem;
+        padding: 8px;
+        background-color: #0d6efd;
+        border: none;
+    }
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container register-container">
+    <div class="card shadow-sm">
+        <div class="card-body px-4 py-3">
+            <h4 class="text-center fw-bold mb-3">Create Account</h4>
+            <form method="POST" action="">
+                <div class="mb-2">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-2">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-2">
+                    <label for="confirm_password" class="form-label">Confirm Password</label>
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-3">
+                    <label for="name" class="form-label">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control form-control-sm" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-sm">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

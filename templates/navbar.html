@@ -1,0 +1,53 @@
+ <style>
+    .nav-link.active-page {
+        background-color: #0d6efd;
+        color: white;
+        padding: 8px 18px;
+        font-weight: 600;
+        border-radius: 6px;
+        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
+        transition: none;
+    }
+
+    .nav-link {
+        color: #343a40;
+        font-weight: 500;
+        padding: 8px 16px;
+        border-radius: 6px;
+        transition: none;
+    }
+
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .navbar {
+        background-color: white;
+    }
+
+    .navbar-brand {
+        font-size: 1.3rem;
+    }
+</style>
+
+ <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">Vehicle Parking</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'login' %}active-page{% endif %}" href="{{ url_for('login') }}">Login</a>
+                    </li>
+                    <li class="nav-item ms-2">
+                        <a class="nav-link {% if request.endpoint == 'register' %}active-page{% endif %}" href="{{ url_for('register') }}">Register</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>

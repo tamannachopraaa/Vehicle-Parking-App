@@ -1,0 +1,65 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login Page
+{% endblock %}
+
+{% block style %}
+<style>
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .login-container {
+        max-width: 400px; 
+        margin: 40px auto;
+        margin-top: 80px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-label {
+        font-weight: 500;
+    }
+
+    .form-control {
+        font-size: 0.95rem;
+        padding: 10px 12px;
+    }
+
+    .btn-primary {
+        font-size: 0.95rem;
+        padding: 10px;
+        background-color: #0d6efd;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #0b5ed7;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container login-container">
+    <div class="card shadow-lg">
+        <div class="card-body">
+            <h2 class="card-title text-center mb-4">Login</h2>
+            <form action="" method="POST">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Username:</label>
+                    <input type="text" id="username" name="username" class="form-control form-control-sm" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password:</label>
+                    <input type="password" id="password" name="password" class="form-control form-control-sm" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 btn-sm">Login</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
