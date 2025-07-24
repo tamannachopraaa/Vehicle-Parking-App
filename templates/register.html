@@ -43,7 +43,7 @@
     <div class="card shadow-sm">
         <div class="card-body px-4 py-3">
             <h4 class="text-center fw-bold mb-3">Create Account</h4>
-            <form method="POST" action="">
+            <form method="POST" action="{{ url_for('register_post') }}">
                 <div class="mb-2">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" id="username" name="username" class="form-control form-control-sm" required>
@@ -58,7 +58,7 @@
                 </div>
                 <div class="mb-3">
                     <label for="name" class="form-label">Full Name</label>
-                    <input type="text" id="name" name="name" class="form-control form-control-sm" required>
+                    <input type="text" id="name" name="name" class="form-control form-control-sm">
                 </div>
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-sm">Register</button>
