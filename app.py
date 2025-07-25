@@ -1,12 +1,14 @@
 from flask import Flask
 from config import Config
-from models import db
+from models import db, create_admin
 from routes import init_routes
 
 app = Flask(__name__)
 app.config.from_object(Config)
 
 db.init_app(app)
+with app.app_context():
+    create_admin()
 init_routes(app)  # Register routes
 
 

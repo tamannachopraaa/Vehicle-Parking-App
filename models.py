@@ -1,7 +1,7 @@
 #import datetime
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
-
+from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
 # Registered User Table
@@ -12,6 +12,7 @@ class AppUser(db.Model):
     upass = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    isAdmin = db.Column(db.Boolean, default=False, nullable=False)
 
     bookings = db.relationship('SlotReservation', backref='reserved_by', lazy=True)
 
@@ -25,7 +26,7 @@ class LotInfo(db.Model):
     lot_zip = db.Column(db.String(10))
     rate_per_hr = db.Column(db.Float, nullable=False)
     total_slots = db.Column(db.Integer, nullable=False)
-
+    
     slot_list = db.relationship('LotSlot', backref='parent_lot', cascade="all, delete", lazy=True)
 
 
@@ -49,7 +50,19 @@ class SlotReservation(db.Model):
     time_out = db.Column(db.DateTime, nullable=True)
     final_charge = db.Column(db.Float, nullable=True)
 
+def create_admin():
+    from flask import current_app
+    with current_app.app_context():
+        admin = AppUser.query.filter_by(isAdmin=True).first()
+        if not admin:
+            admin_user = AppUser(
+                uname='admin',
+                upass=generate_password_hash('admin'),
+                name='Admin User',
+                isAdmin=True
+            )
+            db.session.add(admin_user)
+            db.session.commit()
 
-   
 
 

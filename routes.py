@@ -1,28 +1,28 @@
-from flask import redirect, render_template, request, flash, url_for
+from flask import redirect, render_template, request, flash, url_for, session
 from models import AppUser, db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def init_routes(app):
     @app.route('/')
     def index():
-        return render_template('index.html')
-
-    @app.route('/login')
-    def login():
         return render_template('login.html')
-    
-    @app.route('/login', methods=['POST'])
-    def login_post():
-        uname = request.form.get('username')
-        upass = request.form.get('password')
 
-        user = AppUser.query.filter_by(uname=uname).first()
-        if user and check_password_hash(user.upass, upass):
-            flash('Login successful!')
-            return redirect(url_for('index'))
-        else:
-            flash('Invalid username or password')
-            return redirect(url_for('login'))   
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        if request.method == 'POST':
+            uname = request.form['uname']
+            upass = request.form['upass']
+            user = AppUser.query.filter_by(uname=uname).first()
+            if user and check_password_hash(user.upass, upass):
+                session['user_id'] = user.uid
+                session['is_admin'] = user.isAdmin
+                if user.isAdmin:
+                    return redirect(url_for('admin_login'))  # Change to your admin route
+                else:
+                    return redirect(url_for('user_login'))   # Change to your user route
+            else:
+                flash('Invalid credentials')
+        return render_template('login.html')
 
     @app.route('/register')
     def register():
@@ -59,3 +59,4 @@ def init_routes(app):
 
         flash('Registration successful! Please log in.')
         return redirect(url_for('login'))
+
