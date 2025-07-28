@@ -1,26 +1,15 @@
-from flask import redirect, render_template, request, flash, url_for, session
+from flask import app, redirect, render_template, request, flash, url_for, session
 from models import AppUser, LotSlot, LotInfo, db
 from werkzeug.security import generate_password_hash, check_password_hash
 
 def init_routes(app):
+
+    # First page when app is run
     @app.route('/', methods=['GET', 'POST'])
     def index():
-        if request.method == 'POST':
-            uname = request.form['uname']
-            upass = request.form['upass']
-            user = AppUser.query.filter_by(uname=uname).first()
-            if user and check_password_hash(user.upass, upass):
-                session['user_id'] = user.uid
-                session['is_admin'] = user.isAdmin
-                if user.isAdmin:
-                    return redirect(url_for('admin_login'))  # Change to your admin route
-                else:
-                    return redirect(url_for('user_login'))   # Change to your user route
-            else:
-                flash('Invalid credentials')
-        return render_template('login.html')
+        return redirect(url_for('login'))
 
-
+    # Login
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
@@ -31,13 +20,14 @@ def init_routes(app):
                 session['user_id'] = user.uid
                 session['is_admin'] = user.isAdmin
                 if user.isAdmin:
-                    return redirect(url_for('admin_login'))  # Change to your admin route
+                    return redirect(url_for('admin_login'))  
                 else:
-                    return redirect(url_for('user_login'))   # Change to your user route
+                    return redirect(url_for('user_login'))
             else:
                 flash('Invalid credentials')
         return render_template('login.html')
 
+    # Register
     @app.route('/register')
     def register():
         return render_template('register.html')
@@ -74,11 +64,13 @@ def init_routes(app):
         flash('Registration successful! Please log in.')
         return redirect(url_for('login'))
     
+    # Logout
     @app.route('/logout')
     def logout():
         session.clear()
         return redirect(url_for('login'))
 
+    # Admin login
     @app.route('/admin_login')
     def admin_login():
         user = None
@@ -87,6 +79,7 @@ def init_routes(app):
         lots = LotInfo.query.all()
         return render_template('admin_login.html', user=user, lots=lots)
 
+    # User login
     @app.route('/user_login')
     def user_login():
         user = None
@@ -94,6 +87,7 @@ def init_routes(app):
             user = AppUser.query.get(session['user_id'])
         return render_template('user_login.html', user=user)
     
+    # Slot add
     @app.route('/slot/add')
     def add_slot():
         return render_template('add_slot.html')
@@ -121,14 +115,16 @@ def init_routes(app):
         flash('Parking lot added successfully!')
         return redirect(url_for('admin_login'))
     
+    # Slot view
     @app.route('/slot/<int:slot_id>/')
     def view_slot(slot_id):
-        slot = LotInfo.query.get(slot_id)  # or LotSlot.query.get(slot_id) if you want individual slots
+        slot = LotInfo.query.get(slot_id) 
         if not slot:
             flash("Slot not found.")
             return redirect(url_for('admin_login'))
         return render_template('show_slot.html', slot=slot)
 
+    # Slot delete
     @app.route('/slot/<int:slot_id>/delete')
     def delete_slot(slot_id):
         slot = LotInfo.query.get(slot_id)
@@ -137,7 +133,7 @@ def init_routes(app):
             return redirect(url_for('admin_login'))
         return render_template('delete_slot.html', slot=slot)
 
-
+    # Delete slot confirmation
     @app.route('/slot/<int:slot_id>/delete/confirmed', methods=['POST'])
     def delete_slot_confirmed(slot_id):
         """Deletes the slot after confirmation."""
@@ -150,6 +146,7 @@ def init_routes(app):
         flash("Slot deleted successfully.")
         return redirect(url_for('admin_login'))
 
+    # Slot edit
     @app.route('/slot/<int:slot_id>/edit')
     def edit_slot(slot_id):
         slot = LotInfo.query.get(slot_id)  # or LotSlot.query.get(slot_id) if you want individual slots
@@ -174,6 +171,8 @@ def init_routes(app):
             flash("All fields are required.")
             return redirect(url_for('edit_slot', slot_id=slot_id))
         
+        # Save changes
         db.session.commit()
         flash("Slot updated successfully.")
         return redirect(url_for('admin_login'))
+    

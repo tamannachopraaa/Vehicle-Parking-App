@@ -1,4 +1,3 @@
-#import datetime
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -50,6 +49,7 @@ class SlotReservation(db.Model):
     time_out = db.Column(db.DateTime, nullable=True)
     final_charge = db.Column(db.Float, nullable=True)
 
+# create admin 
 def create_admin():
     from flask import current_app
     with current_app.app_context():
@@ -64,5 +64,9 @@ def create_admin():
             db.session.add(admin_user)
             db.session.commit()
 
-
-
+# reset db
+def reset_all():
+    db.drop_all()
+    db.create_all()
+    create_admin()  
+    print("Database reset complete.")

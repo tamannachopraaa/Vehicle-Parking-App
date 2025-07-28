@@ -11,7 +11,7 @@
             <div class="card shadow-sm rounded-3 border-0">
                 <div class="card-body p-3">
                     <h4 class="mb-3 text-center fw-bold">Delete Parking Slot</h4>
-                    <p class="text-center">Are you sure you want to delete the parking slot titled "<strong>{{ slot.lot_title }}</strong>"?</p>
+                    <p class="text-center">Are you sure you want to delete the parking slot<br> "<strong>{{ slot.lot_title }}</strong>"?</p>
                     <form method="POST" action="{{ url_for('delete_slot_confirmed', slot_id=slot.lot_id) }}">
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-danger btn-sm rounded-pill">Yes, Delete Slot</button>
