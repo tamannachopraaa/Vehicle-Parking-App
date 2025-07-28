@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Admin Dashboard
+{% endblock %}
+
+{% block content %}
+<h1 class="display-1">Admin Dashboard</h1>
+
+<h2 class="mt-4">Manage Parking Lots</h2>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Location</th>
+            <th>Pincode</th>
+            <th>Max Slots</th>
+            <th>Charges/Hour (₹)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for lot in lots %}
+        <tr>
+            <td>{{ lot.lot_id }}</td>
+            <td>{{ lot.lot_title }}</td>
+            <td>{{ lot.lot_location }}</td>
+            <td>{{ lot.lot_zip }}</td>
+            <td>{{ lot.total_slots }}</td>
+            <td>{{ lot.rate_per_hr }}</td>
+            <td>
+                <a href="{{ url_for('view_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-info">View</a>
+                <a href="{{ url_for('edit_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                <a href="{{ url_for('delete_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{{ url_for('add_slot') }}" class="btn btn-success">Add parking slot</a>
+
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "layout.html" %}
+{% block title %}
+    Parking Lot Details
+{% endblock %}
+
+{% block content %}
+<h1>Parking Lot Details</h1>
+<p><strong>ID:</strong> {{ slot.lot_id }}</p>
+<p><strong>Title:</strong> {{ slot.lot_title }}</p>
+<p><strong>Location:</strong> {{ slot.lot_location }}</p>
+<p><strong>Pincode:</strong> {{ slot.lot_zip }}</p>
+<p><strong>Max Slots:</strong> {{ slot.total_slots }}</p>
+<p><strong>Charges/Hour:</strong> ₹{{ slot.rate_per_hr }}</p>
+
+<h2 class="mt-4">Slot Status</h2>
+<table class="table table-bordered w-auto">
+    <thead>
+        <tr>
+            <th>Slot Number</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for slot_obj in slot.slot_list %}
+        <tr>
+            <td>{{ slot_obj.slot_id }}</td>
+            <td>
+                {% if slot_obj.slot_status %}
+                    O
+                {% else %}
+                    A
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p><strong>Legend:</strong> A = Available, O = Occupied</p>
+{% endblock %}
+
