@@ -25,15 +25,15 @@
         <tr>
             <td>{{ slot_obj.slot_id }}</td>
             <td>
-                {% if slot_obj.slot_status %}
-                    O
+                {% if slot_obj.slot_status == 'O' %}
+                    <span class="badge bg-danger">Occupied</span>
                 {% else %}
-                    A
+                    <span class="badge bg-success">Available</span>
                 {% endif %}
             </td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<p><strong>Legend:</strong> A = Available, O = Occupied</p>
+<p><strong>Legend:</strong> <span class="badge bg-success">Available</span> = Available, <span class="badge bg-danger">Occupied</span> = Occupied</p>
 {% endblock %}

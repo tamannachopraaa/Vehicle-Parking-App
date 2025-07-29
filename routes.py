@@ -1,8 +1,9 @@
-from flask import app, redirect, render_template, request, flash, url_for, session
-from models import AppUser, LotSlot, LotInfo, db
+from flask import Flask, render_template, redirect, url_for, session, flash, request
+from models import AppUser, LotSlot, LotInfo, db, SlotReservation
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 
-def init_routes(app):
+def init_routes(app):  # Receive the app instance
 
     # First page when app is run
     @app.route('/', methods=['GET', 'POST'])
@@ -76,16 +77,43 @@ def init_routes(app):
         user = None
         if 'user_id' in session:
             user = AppUser.query.get(session['user_id'])
+        
+        # Get all lots and calculate available slots for each
         lots = LotInfo.query.all()
-        return render_template('admin_login.html', user=user, lots=lots)
+        for lot in lots:
+            # Count available slots (status = 'A')
+            available_count = LotSlot.query.filter_by(parent_id=lot.lot_id, slot_status='A').count()
+            # Add the available count as an attribute to the lot object
+            lot.available_count = available_count
+        
+        # Get all bookings for admin to see
+        all_bookings = SlotReservation.query.order_by(SlotReservation.time_in.desc()).all()
+        
+        return render_template('admin_login.html', user=user, lots=lots, all_bookings=all_bookings)
 
     # User login
     @app.route('/user_login')
     def user_login():
         user = None
+        available_slots = []
+        
         if 'user_id' in session:
             user = AppUser.query.get(session['user_id'])
-        return render_template('user_login.html', user=user)
+            
+            # Get all lots and calculate available slots for each
+            lots = LotInfo.query.all()
+            for lot in lots:
+                # Count available slots (status = 'A')
+                available_count = LotSlot.query.filter_by(parent_id=lot.lot_id, slot_status='A').count()
+                
+                # Only show lots that have available slots
+                if available_count > 0:
+                    # Add the available count as an attribute to the lot object
+                    lot.available_count = available_count
+                    available_slots.append(lot)
+    
+        return render_template('user_login.html', user=user, available_slots=available_slots)
+
     
     # Slot add
     @app.route('/slot/add')
@@ -99,10 +127,20 @@ def init_routes(app):
         pincode = request.form.get('pincode')
         number_of_slots = request.form.get('number_of_slots')
         charges_per_hour = request.form.get('charges_per_hour')
+
+        # Basic validation
         if not lot_title or not location or not pincode or not number_of_slots or not charges_per_hour:
             flash('Please fill out all fields')
             return redirect(url_for('add_slot'))
 
+        try:
+            number_of_slots = int(number_of_slots)
+            charges_per_hour = float(charges_per_hour)
+        except ValueError:
+            flash('Invalid number or charges.')
+            return redirect(url_for('add_slot'))
+
+        # Create new LotInfo
         new_lot = LotInfo(
             lot_title=lot_title,
             lot_location=location,
@@ -111,8 +149,19 @@ def init_routes(app):
             rate_per_hr=charges_per_hour
         )
         db.session.add(new_lot)
-        db.session.commit()
-        flash('Parking lot added successfully!')
+        db.session.commit()  # Commit to get lot_id
+
+        # Create corresponding LotSlot entries
+        for _ in range(number_of_slots):
+            new_slot = LotSlot(
+                parent_id=new_lot.lot_id,
+                slot_status='A'  # 'A' = Available
+            )
+            db.session.add(new_slot)
+
+        db.session.commit()  # Commit all slot inserts
+
+        flash('Parking lot and slots added successfully!')
         return redirect(url_for('admin_login'))
     
     # Slot view
@@ -149,7 +198,7 @@ def init_routes(app):
     # Slot edit
     @app.route('/slot/<int:slot_id>/edit')
     def edit_slot(slot_id):
-        slot = LotInfo.query.get(slot_id)  # or LotSlot.query.get(slot_id) if you want individual slots
+        slot = LotInfo.query.get(slot_id)  
         if not slot:
             flash("Slot not found.")
             return redirect(url_for('admin_login'))
@@ -175,4 +224,111 @@ def init_routes(app):
         db.session.commit()
         flash("Slot updated successfully.")
         return redirect(url_for('admin_login'))
+
+    # Slot booking
+    @app.route('/slot/<int:lot_id>/book')
+    def book_slot(lot_id):
+        """Handles the booking of a parking slot."""
+        user_id = session.get('user_id')
+        if not user_id:
+            flash("You must be logged in to book a slot.")
+            return redirect(url_for('login'))
+
+        # Get the lot and check if it exists
+        lot = LotInfo.query.get(lot_id)
+        if not lot:
+            flash("Parking lot not found.")
+            return redirect(url_for('user_login'))
+
+        # Find an available slot
+        available_slot = LotSlot.query.filter_by(parent_id=lot_id, slot_status='A').first()
+        if not available_slot:
+            flash("All slots in this lot are currently booked.")
+            return redirect(url_for('user_login'))
+
+        try:
+            # Book the slot
+            available_slot.slot_status = 'O'  # Mark the slot as occupied
+
+            # Record the booking
+            reservation = SlotReservation(
+                booked_by=user_id,
+                slot_taken=available_slot.slot_id,
+                time_in=datetime.now()
+            )
+            
+            db.session.add(reservation)
+            db.session.commit()  # Commit both changes
+            
+            flash("Slot booked successfully!")
+            
+        except Exception as e:
+            db.session.rollback()  # Rollback on error
+            flash("An error occurred while booking the slot. Please try again.")
+            print(f"Booking error: {e}")  # For debugging
     
+        return redirect(url_for('user_login'))
+
+    @app.route('/admin/booking/<int:booking_id>')
+    def view_booking(booking_id):
+        booking = SlotReservation.query.get_or_404(booking_id)
+        return render_template('view_booking.html', booking=booking)
+
+    @app.route('/slot/release/<int:booking_id>')
+    def release_slot(booking_id):
+        """Handles the release of a parking slot and calculates final cost."""
+        user_id = session.get('user_id')
+        if not user_id:
+            flash("You must be logged in to release a slot.")
+            return redirect(url_for('login'))
+
+        # Get the booking
+        booking = SlotReservation.query.get(booking_id)
+        if not booking:
+            flash("Booking not found.")
+            return redirect(url_for('user_login'))
+
+        # Check if the booking belongs to the current user
+        if booking.booked_by != user_id:
+            flash("You can only release your own bookings.")
+            return redirect(url_for('user_login'))
+
+        # Check if the booking is already completed
+        if booking.time_out:
+            flash("This booking has already been completed.")
+            return redirect(url_for('user_login'))
+
+        try:
+            # Set the checkout time
+            booking.time_out = datetime.now()
+            
+            # Calculate duration in hours
+            duration = booking.time_out - booking.time_in
+            duration_hours = duration.total_seconds() / 3600
+            
+            # Round up to the nearest hour (minimum 1 hour charge)
+            import math
+            duration_hours = max(1, math.ceil(duration_hours))
+            
+            # Get the hourly rate from the parking lot
+            lot = booking.reserved_slot.parent_lot
+            hourly_rate = lot.rate_per_hr
+            
+            # Calculate final charge
+            booking.final_charge = duration_hours * hourly_rate
+            
+            # Release the slot (mark as available)
+            slot = booking.reserved_slot
+            slot.slot_status = 'A'  # Mark as available
+            
+            # Commit all changes
+            db.session.commit()
+            
+            flash(f"Slot released successfully! Duration: {duration_hours} hours. Final charge: ₹{booking.final_charge:.2f}")
+            
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while releasing the slot. Please try again.")
+            print(f"Release error: {e}")  # For debugging
+        
+        return redirect(url_for('user_login'))

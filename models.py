@@ -34,7 +34,7 @@ class LotSlot(db.Model):
     __tablename__ = 'lot_slots'
     slot_id = db.Column(db.Integer, primary_key=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('lots_info.lot_id'), nullable=False)
-    slot_status = db.Column(db.String(1), default='A')  # A=Available, O=Occupied
+    slot_status = db.Column(db.String(1), default='A')  # String type now
 
     current_reservation = db.relationship('SlotReservation', backref='reserved_slot', lazy=True, uselist=False)
 
