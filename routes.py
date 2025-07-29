@@ -178,21 +178,59 @@ def init_routes(app):  # Receive the app instance
     def delete_slot(slot_id):
         slot = LotInfo.query.get(slot_id)
         if not slot:
-            flash("Slot not found.")
+            flash("Slot not found.", 'danger')
             return redirect(url_for('admin_login'))
-        return render_template('delete_slot.html', slot=slot)
+        
+        # Check for active bookings
+        active_bookings = db.session.query(SlotReservation).join(LotSlot).filter(
+            LotSlot.parent_id == slot_id,
+            SlotReservation.time_out.is_(None)
+        ).count()
+        
+        return render_template('delete_slot.html', slot=slot, active_bookings=active_bookings)
 
     # Delete slot confirmation
     @app.route('/slot/<int:slot_id>/delete/confirmed', methods=['POST'])
     def delete_slot_confirmed(slot_id):
-        """Deletes the slot after confirmation."""
+        """Deletes the slot after confirmation, only if no active bookings exist."""
         slot = LotInfo.query.get(slot_id)
         if not slot:
-            flash("Slot not found.")
+            flash("Slot not found.", 'danger')
             return redirect(url_for('admin_login'))
-        db.session.delete(slot)
-        db.session.commit()
-        flash("Slot deleted successfully.")
+        
+        # Check if there are any active bookings for this lot
+        active_bookings = db.session.query(SlotReservation).join(LotSlot).filter(
+            LotSlot.parent_id == slot_id,
+            SlotReservation.time_out.is_(None)
+        ).count()
+        
+        if active_bookings > 0:
+            flash(f"Cannot delete parking lot '{slot.lot_title}'. There are {active_bookings} active booking(s). Please wait for all bookings to be completed.", 'danger')
+            return redirect(url_for('admin_login'))
+        
+        # Check if there are any completed bookings (optional - for data integrity)
+        total_bookings = db.session.query(SlotReservation).join(LotSlot).filter(
+            LotSlot.parent_id == slot_id
+        ).count()
+        
+        if total_bookings > 0:
+            flash(f"Warning: Deleting parking lot '{slot.lot_title}' will also delete {total_bookings} booking record(s). Are you sure?", 'danger')
+            # You might want to add an additional confirmation step here
+        
+        try:
+            # Delete all associated slots first (cascade should handle this, but being explicit)
+            LotSlot.query.filter_by(parent_id=slot_id).delete()
+            
+            # Delete the lot itself
+            db.session.delete(slot)
+            db.session.commit()
+            
+            flash(f"Parking lot '{slot.lot_title}' deleted successfully.", 'success')
+        except Exception as e:
+            db.session.rollback()
+            flash("An error occurred while deleting the parking lot. Please try again.", 'danger')
+            print(f"Delete error: {e}")
+        
         return redirect(url_for('admin_login'))
 
     # Slot edit

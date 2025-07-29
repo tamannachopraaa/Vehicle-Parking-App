@@ -1,108 +1,108 @@
 {% extends "layout.html" %}
-
 {% block title %}
     Parking Lot Details
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-5">
-    <h2 class="text-center mb-4 text-primary fw-semibold" style="letter-spacing: 1px;">Parking Lot Details</h2>
-
-    <div class="p-4 bg-white rounded shadow-sm mb-5">
-        <h5 class="text-secondary mb-4">Lot Information</h5>
-        <div class="row mb-2">
-            <div class="col-md-4"><strong>ID:</strong> {{ slot.lot_id }}</div>
-            <div class="col-md-4"><strong>Title:</strong> {{ slot.lot_title }}</div>
-            <div class="col-md-4"><strong>Location:</strong> {{ slot.lot_location }}</div>
-        </div>
-        <div class="row">
-            <div class="col-md-4"><strong>Pincode:</strong> {{ slot.lot_zip }}</div>
-            <div class="col-md-4"><strong>Max Slots:</strong> {{ slot.total_slots }}</div>
-            <div class="col-md-4"><strong>Charges/Hour:</strong> ₹{{ slot.rate_per_hr }}</div>
-        </div>
+<h1>Parking Lot Details</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <p><strong>ID:</strong> {{ slot.lot_id }}</p>
+        <p><strong>Title:</strong> {{ slot.lot_title }}</p>
+        <p><strong>Location:</strong> {{ slot.lot_location }}</p>
     </div>
-
-    <div class="mb-4 d-flex align-items-center gap-3">
-        <h4 class="text-dark mb-0">Slot Status</h4>
-        <span class="badge bg-success">A = Available</span>
-        <span class="badge bg-danger">O = Occupied</span>
-    </div>
-
-    <div class="slot-grid">
-        {% for slot_obj in slot.slot_list %}
-            <div class="slot-box {% if slot_obj.slot_status == 'O' %}occupied{% else %}available{% endif %}">
-                <div class="slot-number">#{{ loop.index }}</div>
-                <div class="slot-status">{{ slot_obj.slot_status }}</div>
-            </div>
-        {% endfor %}
+    <div class="col-md-6">
+        <p><strong>Pincode:</strong> {{ slot.lot_zip }}</p>
+        <p><strong>Max Slots:</strong> {{ slot.total_slots }}</p>
+        <p><strong>Charges/Hour:</strong> ₹{{ slot.rate_per_hr }}</p>
     </div>
 </div>
 
-<style>
-/* Layout */
-.container {
-    max-width: 900px;
-}
+<h2 class="mt-4">Slot Status</h2>
+<div class="mb-3">
+    <span class="badge bg-success me-3">A = Available</span>
+    <span class="badge bg-danger">O = Occupied</span>
+</div>
 
-/* Slot grid */
+<div class="slot-grid">
+    {% for slot_obj in slot.slot_list %}
+        <div class="slot-box {% if slot_obj.slot_status == 'O' %}occupied{% else %}available{% endif %}">
+            <div class="slot-number">{{ loop.index }}</div>
+            <div class="slot-status">{{ slot_obj.slot_status }}</div>
+        </div>
+    {% endfor %}
+</div>
+
+<style>
 .slot-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(85px, 1fr));
-    gap: 20px;
-    margin-top: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 15px;
+    max-width: 800px;
+    margin-top: 20px;
 }
 
-/* Slot box */
 .slot-box {
-    aspect-ratio: 1/1;
-    border-radius: 12px;
+    width: 80px;
+    height: 80px;
+    border-radius: 10px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    font-weight: 600;
-    font-family: 'Segoe UI', sans-serif;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.08);
-    transition: all 0.2s ease-in-out;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
 }
 
-/* Hover effect */
 .slot-box:hover {
-    transform: scale(1.05);
-    box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
 }
 
-/* Colors */
 .slot-box.available {
-    background-color: #e9f7ef;
+    background-color: #d4edda;
     border: 2px solid #28a745;
-    color: #218838;
+    color: #155724;
 }
 
 .slot-box.occupied {
-    background-color: #fceeee;
+    background-color: #f8d7da;
     border: 2px solid #dc3545;
-    color: #c82333;
+    color: #721c24;
 }
 
-/* Text */
 .slot-number {
-    font-size: 13px;
-    margin-bottom: 4px;
-    color: #333;
-}
-.slot-status {
-    font-size: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 2px;
 }
 
-/* Responsive */
+.slot-status {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Responsive design */
 @media (max-width: 576px) {
     .slot-grid {
-        grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
-        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+        gap: 10px;
     }
-    .slot-number { font-size: 11px; }
-    .slot-status { font-size: 16px; }
+    
+    .slot-box {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .slot-number {
+        font-size: 12px;
+    }
+    
+    .slot-status {
+        font-size: 14px;
+    }
 }
 </style>
+
 {% endblock %}

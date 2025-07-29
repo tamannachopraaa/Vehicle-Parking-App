@@ -67,9 +67,9 @@
                     <thead class="table-light text-center">
                         <tr>
                             <th>Booking ID</th>
+                            <th>Slot ID</th>
                             <th>User Name</th>
                             <th>Parking Lot</th>
-                            <th>Slot ID</th>
                             <th>Location</th>
                             <th>Booked At</th>
                             <th>Checked Out</th>
@@ -82,9 +82,9 @@
                         {% for booking in all_bookings %}
                         <tr class="text-center">
                             <td>{{ booking.rid }}</td>
+                            <td>{{ booking.reserved_slot.slot_id }}</td>
                             <td>{{ booking.reserved_by.name }}</td>
                             <td>{{ booking.reserved_slot.parent_lot.lot_title }}</td>
-                            <td>{{ booking.reserved_slot.slot_id }}</td>
                             <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
                             <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
                             <td>
