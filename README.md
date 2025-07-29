@@ -8,8 +8,8 @@ A multi-user parking management system for 4-wheeler vehicle parking built using
 
 The **Vehicle Parking App** is designed to streamline the process of managing multiple parking lots and booking parking spots. It supports two roles:
 
-- **Admin** (superuser): Can create/edit/delete parking lots, manage parking spots, and view system-wide reports.
-- **User**: Can register/login, book the first available parking spot in a chosen lot, and release it after use.
+- **Admin**: Can create/edit/delete parking lots and manage parking spots.
+- **User**: Can register/login, book the first available parking spot in a chosen lot and release it after use.
 
 This app was developed as part of the **Modern Application Development I (MAD I)** course project.
 
@@ -23,7 +23,6 @@ This app was developed as part of the **Modern Application Development I (MAD I)
 | Frontend     | HTML, CSS, Jinja2      |
 | Styling      | Bootstrap 5            |
 | Database     | SQLite (via SQLAlchemy)|
-| Charts       | Chart.js (for summary) |
 
 ---
 
@@ -36,7 +35,6 @@ This app was developed as part of the **Modern Application Development I (MAD I)
 - View spot status (Occupied/Available)
 - Delete parking lots (only if all spots are empty)
 - View all registered users
-- View graphical summaries of lot usage
 
 ### 👤 User Dashboard
 - Register/Login functionality
