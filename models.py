@@ -3,7 +3,7 @@ from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
 db = SQLAlchemy()
 
-# Registered User Table
+# user
 class AppUser(db.Model):
     __tablename__ = 'app_users'
     uid = db.Column(db.Integer, primary_key=True)
@@ -16,7 +16,7 @@ class AppUser(db.Model):
     bookings = db.relationship('SlotReservation', backref='reserved_by', lazy=True)
 
 
-# Parking Lot Table
+# lot info
 class LotInfo(db.Model):
     __tablename__ = 'lots_info'
     lot_id = db.Column(db.Integer, primary_key=True)
@@ -29,17 +29,17 @@ class LotInfo(db.Model):
     slot_list = db.relationship('LotSlot', backref='parent_lot', cascade="all, delete", lazy=True)
 
 
-# Individual Slot in a Lot
+# slot info
 class LotSlot(db.Model):
     __tablename__ = 'lot_slots'
     slot_id = db.Column(db.Integer, primary_key=True)
     parent_id = db.Column(db.Integer, db.ForeignKey('lots_info.lot_id'), nullable=False)
-    slot_status = db.Column(db.String(1), default='A')  # String type now
+    slot_status = db.Column(db.String(1), default='A')
 
     current_reservation = db.relationship('SlotReservation', backref='reserved_slot', lazy=True, uselist=False)
 
 
-# Reservation Data
+# Reservation
 class SlotReservation(db.Model):
     __tablename__ = 'slot_reservations'
     rid = db.Column(db.Integer, primary_key=True)
@@ -69,4 +69,3 @@ def reset_all():
     db.drop_all()
     db.create_all()
     create_admin()  
-    print("Database reset complete.")
