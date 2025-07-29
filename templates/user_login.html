@@ -5,111 +5,131 @@
 {% endblock %}
 
 {% block content %}
-<h1>Welcome to Our Parking App</h1>
+<div class="container mt-4 mb-5">
 
-{% if user %}
-    <p>Welcome, {{ user.name }}!</p>
+    {% if user %}
+        <!-- Welcome Message -->
+        <h2 class="mb-4 display-6 fw-medium text-dark">
+            Welcome back, <span class="text-success fw-semibold">{{ user.name }}</span>!
+        </h2>
 
-    <h2>Available Parking Slots</h2>
+        <!-- Available Parking Slots Section -->
+        <section class="mb-5">
+            <h4 class="mb-3 border-bottom pb-2 text-secondary">🚗 Available Parking Slots</h4>
 
-    {% if available_slots %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Slot Title</th>
-                    <th>Location</th>
-                    <th>Available Slots</th>
-                    <th>Rate/Hour</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for slot in available_slots %}
-                <tr>
-                    <td>{{ slot.lot_title }}</td>
-                    <td>{{ slot.lot_location }}</td>
-                    <td>{{ slot.available_count }}</td>
-                    <td>₹{{ slot.rate_per_hr }}</td>
-                    <td>
-                        <a href="{{ url_for('view_slot', slot_id=slot.lot_id) }}" class="btn btn-sm btn-info">View</a>
-                        <a href="{{ url_for('book_slot', lot_id=slot.lot_id) }}" class="btn btn-sm btn-success">Book</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+            {% if available_slots %}
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered align-middle shadow-sm rounded">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>Slot Title</th>
+                            <th>Location</th>
+                            <th>Available</th>
+                            <th>Rate/Hour (₹)</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for slot in available_slots %}
+                        <tr>
+                            <td class="fw-semibold">{{ slot.lot_title }}</td>
+                            <td>{{ slot.lot_location }}</td>
+                            <td><span class="badge bg-success">{{ slot.available_count }}</span></td>
+                            <td>₹{{ slot.rate_per_hr }}</td>
+                            <td>
+                                <a href="{{ url_for('view_slot', slot_id=slot.lot_id) }}" class="btn btn-sm btn-outline-primary me-1">
+                                    🔍 View
+                                </a>
+                                <a href="{{ url_for('book_slot', lot_id=slot.lot_id) }}" class="btn btn-sm btn-outline-success">
+                                    📅 Book
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted fst-italic">No parking lots available at the moment.</p>
+            {% endif %}
+        </section>
+
+        <!-- User Bookings Section -->
+        <section>
+            <h4 class="mb-3 border-bottom pb-2 text-secondary">📋 Your Bookings</h4>
+
+            {% if user.bookings %}
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle shadow-sm rounded">
+                    <thead class="table-light text-center">
+                        <tr>
+                            <th>ID</th>
+                            <th>Slot</th>
+                            <th>Location</th>
+                            <th>Slot ID</th>
+                            <th>Booked At</th>
+                            <th>Duration</th>
+                            <th>Cost (₹)</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-center">
+                        {% for booking in user.bookings %}
+                        <tr>
+                            <td>{{ booking.rid }}</td>
+                            <td class="fw-semibold">{{ booking.reserved_slot.parent_lot.lot_title }}</td>
+                            <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
+                            <td>{{ booking.reserved_slot.slot_id }}</td>
+                            <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if booking.time_out %}
+                                    {% set duration = booking.time_out - booking.time_in %}
+                                    {{ duration.total_seconds() // 3600 }}h {{ (duration.total_seconds() % 3600) // 60 }}m
+                                {% else %}
+                                    <span class="text-muted">Ongoing</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.final_charge %}
+                                    ₹{{ "%.2f"|format(booking.final_charge) }}
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if booking.time_out %}
+                                    <span class="badge bg-success">Completed</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Active</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if not booking.time_out %}
+                                    <a href="{{ url_for('release_slot', booking_id=booking.rid) }}" 
+                                       class="btn btn-sm btn-outline-danger"
+                                       onclick="return confirm('Are you sure you want to release this slot?')">
+                                       ❌ Release
+                                    </a>
+                                {% else %}
+                                    <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+                <p class="text-muted fst-italic">You have no bookings yet.</p>
+            {% endif %}
+        </section>
+
     {% else %}
-        <p class="text-muted">No parking lots available at the moment.</p>
+        <div class="alert alert-info mt-4 shadow-sm">
+            <p class="mb-0">Please log in to access parking features.</p>
+        </div>
     {% endif %}
 
-    <h2 class="mt-4">Your Bookings</h2>
-
-    {% if user.bookings %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Booking ID</th>
-                    <th>Slot Title</th>
-                    <th>Location</th>
-                    <th>Slot ID</th>
-                    <th>Booked At</th>
-                    <th>Duration</th>
-                    <th>Final Cost</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for booking in user.bookings %}
-                <tr>
-                    <td>{{ booking.rid }}</td>
-                    <td>{{ booking.reserved_slot.parent_lot.lot_title }}</td>
-                    <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
-                    <td>{{ booking.reserved_slot.slot_id }}</td>
-                    <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
-                    <td>
-                        {% if booking.time_out %}
-                            {% set duration = booking.time_out - booking.time_in %}
-                            {{ duration.total_seconds() // 3600 }}h {{ (duration.total_seconds() % 3600) // 60 }}m
-                        {% else %}
-                            <span class="text-muted">Ongoing</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if booking.final_charge %}
-                            ₹{{ "%.2f"|format(booking.final_charge) }}
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if booking.time_out %}
-                            <span class="badge bg-success">Completed</span>
-                        {% else %}
-                            <span class="badge bg-warning">Active</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if not booking.time_out %}
-                            <a href="{{ url_for('release_slot', booking_id=booking.rid) }}" 
-                               class="btn btn-sm btn-danger"
-                               onclick="return confirm('Are you sure you want to release this slot?')">
-                               Release Slot
-                            </a>
-                        {% else %}
-                            <span class="text-muted">-</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="text-muted">You have no bookings.</p>
-    {% endif %}
-
-{% else %}
-    <p>Please log in to access more features.</p>
-{% endif %}
-
+</div>
 {% endblock %}
