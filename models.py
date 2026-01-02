@@ -10,7 +10,7 @@ class AppUser(db.Model):
     uname = db.Column(db.String(100), unique=True, nullable=False)
     upass = db.Column(db.String(100), nullable=False)
     name = db.Column(db.String(100), nullable=False)
-    created_on = db.Column(db.DateTime, default=datetime.utcnow)
+    created_on = db.Column(db.DateTime, default=datetime)
     isAdmin = db.Column(db.Boolean, default=False, nullable=False)
 
     bookings = db.relationship('SlotReservation', backref='reserved_by', lazy=True)
