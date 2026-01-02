@@ -9,7 +9,8 @@ app.config.from_object(Config)
 db.init_app(app)
 
 with app.app_context():
-    create_admin()   # ensures admin exists
+    db.create_all()     # 🔴 THIS LINE FIXES REGISTER ERROR
+    create_admin()
 
 init_routes(app)
 
