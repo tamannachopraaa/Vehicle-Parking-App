@@ -32,7 +32,7 @@ kiwisolver==1.4.7
 Mako==1.3.9
 MarkupSafe==2.1.5
 matplotlib==3.7.5
-mediapipe==0.10.11
+mediapipe==0.10.31
 ml-dtypes==0.2.0
 numpy==1.24.4
 opencv-contrib-python==4.11.0.86
