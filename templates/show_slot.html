@@ -3,105 +3,97 @@
     Parking Lot Details
 {% endblock %}
 
-{% block content %}
-<h1>Parking Lot Details</h1>
-<div class="row mb-4">
-    <div class="col-md-6">
-        <p><strong>ID:</strong> {{ slot.lot_id }}</p>
-        <p><strong>Title:</strong> {{ slot.lot_title }}</p>
-        <p><strong>Location:</strong> {{ slot.lot_location }}</p>
-    </div>
-    <div class="col-md-6">
-        <p><strong>Pincode:</strong> {{ slot.lot_zip }}</p>
-        <p><strong>Max Slots:</strong> {{ slot.total_slots }}</p>
-        <p><strong>Charges/Hour:</strong> ₹{{ slot.rate_per_hr }}</p>
-    </div>
-</div>
-
-<h2 class="mt-4">Slot Status</h2>
-<div class="mb-3">
-    <span class="badge bg-success me-3">A = Available</span>
-    <span class="badge bg-danger">O = Occupied</span>
-</div>
-
-<div class="slot-grid">
-    {% for slot_obj in slot.slot_list %}
-        <div class="slot-box {% if slot_obj.slot_status == 'O' %}occupied{% else %}available{% endif %}">
-            <div class="slot-number">{{ loop.index }}</div>
-            <div class="slot-status">{{ slot_obj.slot_status }}</div>
-        </div>
-    {% endfor %}
-</div>
-
+{% block style %}
 <style>
-.slot-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-    gap: 15px;
-    max-width: 800px;
-    margin-top: 20px;
-}
-
-.slot-box {
-    width: 80px;
-    height: 80px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.2s ease;
-}
-
-.slot-box:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-.slot-box.available {
-    background-color: #d4edda;
-    border: 2px solid #28a745;
-    color: #155724;
-}
-
-.slot-box.occupied {
-    background-color: #f8d7da;
-    border: 2px solid #dc3545;
-    color: #721c24;
-}
-
-.slot-number {
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 2px;
-}
-
-.slot-status {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-@media (max-width: 576px) {
     .slot-grid {
-        grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
-        gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
+        gap: 0.85rem;
     }
-    
+
     .slot-box {
-        width: 60px;
-        height: 60px;
+        border-radius: 14px;
+        min-height: 86px;
+        display: grid;
+        place-items: center;
+        border: 1px solid transparent;
+        box-shadow: 0 6px 16px rgba(26, 46, 71, 0.08);
+        transition: transform 0.2s ease;
     }
-    
+
+    .slot-box:hover {
+        transform: translateY(-2px);
+    }
+
+    .slot-box.available {
+        background: rgba(16, 185, 129, 0.14);
+        border-color: rgba(16, 185, 129, 0.45);
+        color: #0d704f;
+    }
+
+    .slot-box.occupied {
+        background: rgba(239, 68, 68, 0.13);
+        border-color: rgba(239, 68, 68, 0.4);
+        color: #8c2323;
+    }
+
     .slot-number {
-        font-size: 12px;
+        font-size: 0.82rem;
+        font-weight: 600;
     }
-    
+
     .slot-status {
-        font-size: 14px;
+        font-size: 1.1rem;
+        font-weight: 800;
+        line-height: 1;
     }
-}
 </style>
+{% endblock %}
+
+{% block content %}
+<section class="panel mb-4">
+    <div class="panel-header">
+        <h2 class="mb-1">Parking Lot Details</h2>
+        <p class="text-secondary mb-0">Live slot occupancy for <strong>{{ slot.lot_title }}</strong>.</p>
+    </div>
+    <div class="panel-body pt-1">
+        <div class="row g-3">
+            <div class="col-sm-6 col-lg-4">
+                <div class="stat-chip">Lot ID: {{ slot.lot_id }}</div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="stat-chip">Pincode: {{ slot.lot_zip }}</div>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <div class="stat-chip">Rate: ₹{{ slot.rate_per_hr }}/hour</div>
+            </div>
+        </div>
+
+        <div class="mt-3">
+            <p class="mb-1"><strong>Location:</strong> {{ slot.lot_location }}</p>
+            <p class="mb-0"><strong>Total Slots:</strong> {{ slot.total_slots }}</p>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="panel-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+        <h4 class="mb-0">Slot Status</h4>
+        <div class="d-flex gap-2">
+            <span class="badge text-bg-success">A = Available</span>
+            <span class="badge text-bg-danger">O = Occupied</span>
+        </div>
+    </div>
+    <div class="panel-body pt-2">
+        <div class="slot-grid">
+            {% for slot_obj in slot.slot_list %}
+                <div class="slot-box {% if slot_obj.slot_status == 'O' %}occupied{% else %}available{% endif %}">
+                    <div class="slot-number">Slot {{ loop.index }}</div>
+                    <div class="slot-status">{{ slot_obj.slot_status }}</div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
 
 {% endblock %}

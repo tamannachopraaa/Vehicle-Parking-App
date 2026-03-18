@@ -9,7 +9,209 @@
         {% endblock %}
     </title>
 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Manrope:wght@500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <style>
+        :root {
+            --brand-900: #0f172a;
+            --brand-700: #0f766e;
+            --brand-500: #14b8a6;
+            --mint-500: #14b8a6;
+            --accent-500: #f59e0b;
+            --surface-100: #f1f5f9;
+            --surface-200: #e2e8f0;
+            --surface-300: #cbd5e1;
+            --text-900: #152238;
+            --text-700: #3d4a5f;
+            --text-500: #67758a;
+            --space-1: 8px;
+            --space-2: 16px;
+            --space-3: 24px;
+            --space-4: 32px;
+            --space-5: 48px;
+            --content-max: 1180px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --shadow-soft: 0 14px 36px rgba(20, 44, 78, 0.12);
+            --shadow-card: 0 10px 24px rgba(27, 52, 85, 0.08);
+        }
+
+        html,
+        body {
+            min-height: 100%;
+        }
+
+        body {
+            font-family: "Outfit", "Segoe UI", sans-serif;
+            color: var(--text-900);
+            background:
+                radial-gradient(circle at 90% 10%, rgba(20, 184, 166, 0.2), transparent 36%),
+                radial-gradient(circle at 8% 0%, rgba(15, 118, 110, 0.18), transparent 34%),
+                linear-gradient(165deg, #f8fbfd 0%, #f1f5f9 56%, #e8eff5 100%);
+            background-attachment: fixed;
+            line-height: 1.5;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        .navbar-brand {
+            font-family: "Manrope", "Segoe UI", sans-serif;
+        }
+
+        .page-shell {
+            padding: var(--space-4) 0 var(--space-5);
+        }
+
+        .app-container {
+            max-width: var(--content-max);
+            padding-left: var(--space-3);
+            padding-right: var(--space-3);
+        }
+
+        .panel {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: var(--shadow-soft);
+            backdrop-filter: blur(8px);
+            border-radius: var(--radius-lg);
+        }
+
+        .panel .panel-header {
+            padding: var(--space-3) var(--space-3) var(--space-2);
+        }
+
+        .panel .panel-body {
+            padding: 0 var(--space-3) var(--space-3);
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--text-700);
+            margin-bottom: 0.45rem;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            border-color: var(--surface-300);
+            padding: 0.55rem 0.8rem;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: rgba(43, 107, 165, 0.55);
+            box-shadow: 0 0 0 0.2rem rgba(43, 107, 165, 0.15);
+        }
+
+        .btn {
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.15px;
+            min-height: 40px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(120deg, var(--brand-700), var(--brand-500));
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(120deg, #1b4670, #255e92);
+        }
+
+        .btn-success {
+            background: linear-gradient(120deg, #10a58c, #14b8a6);
+            border: none;
+        }
+
+        .btn-success:hover {
+            background: linear-gradient(120deg, #0f917b, #11a290);
+        }
+
+        .btn-outline-primary,
+        .btn-outline-success,
+        .btn-outline-warning,
+        .btn-outline-danger,
+        .btn-outline-info,
+        .btn-outline-secondary {
+            border-width: 1.5px;
+        }
+
+        .table {
+            --bs-table-bg: transparent;
+            margin-bottom: 0;
+        }
+
+        .table thead th {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            color: var(--text-700);
+            background: rgba(229, 237, 248, 0.75);
+            border-bottom-width: 1px;
+        }
+
+        .table td,
+        .table th {
+            border-color: #e2ebf6;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background: rgba(229, 237, 248, 0.5);
+        }
+
+        .stat-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            border-radius: 999px;
+            padding: 0.4rem 0.8rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            background: rgba(16, 37, 66, 0.08);
+            color: var(--brand-900);
+        }
+
+        .flash-stack {
+            position: fixed;
+            top: calc(64px + var(--space-2));
+            right: var(--space-2);
+            z-index: 1200;
+            width: min(440px, calc(100vw - var(--space-4)));
+        }
+
+        .flash-stack .alert {
+            border: 0;
+            box-shadow: var(--shadow-card);
+            border-radius: var(--radius-md);
+            margin-bottom: 0.7rem;
+        }
+
+        @media (max-width: 767px) {
+            .page-shell {
+                padding-top: var(--space-2);
+            }
+
+            .panel .panel-header,
+            .panel .panel-body {
+                padding-left: var(--space-2);
+                padding-right: var(--space-2);
+            }
+
+            .app-container {
+                padding-left: var(--space-2);
+                padding-right: var(--space-2);
+            }
+        }
+    </style>
 
     {% block style %}
     
@@ -17,33 +219,34 @@
 </head>
 <body>
    {% include "navbar.html" %}
-    {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-                {% if category == 'success' %}
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% elif category == 'danger' %}
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% else %}
-                    <div class="alert alert-info alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endif %}
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-    <div class="container">
-        {% block content %}
-        {% endblock %}
+    <div class="flash-stack">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    {% if category == 'success' %}
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% elif category == 'danger' %}
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
     </div>
+
+    <main class="container app-container page-shell">
+        {% block content %}{% endblock %}
+    </main>
 
     {% block script %}
     {% endblock %}

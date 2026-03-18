@@ -5,59 +5,46 @@
 {% endblock %}
 
 {% block content %}
-<div class="container mt-4 mb-4">
-    <div class="row justify-content-center">
-        <div class="col-12 col-sm-8 col-md-6 col-lg-5">
-            <div class="card shadow-sm rounded-3 border-0">
-                <div class="card-body p-3">
-                    <h4 class="mb-3 text-center fw-bold">Delete Parking Lot</h4>
-                    
-                    
-                    <div class="mb-3">
-                        <p class="text-center">Are you sure you want to delete the parking lot<br> "<strong>{{ slot.lot_title }}</strong>"?</p>
-                        
-                       
-                        <div class="alert alert-info">
-                            <small>
-                                <strong>Location:</strong> {{ slot.lot_location }}<br>
-                                <strong>Total Slots:</strong> {{ slot.total_slots }}<br>
-                                <strong>Available Slots:</strong> 
-                                {% set available_count = slot.slot_list | selectattr('slot_status', 'equalto', 'A') | list | length %}
-                                {% set occupied_count = slot.slot_list | selectattr('slot_status', 'equalto', 'O') | list | length %}
-                                {{ available_count }} / {{ slot.total_slots }}<br>
-                                {% if occupied_count > 0 %}
-                                    <span class="text-warning"><strong>⚠️ {{ occupied_count }} slot(s) currently occupied</strong></span>
-                                {% else %}
-                                    <span class="text-success"><strong>✅ All slots are available</strong></span>
-                                {% endif %}
-                            </small>
-                        </div>
-                        
+{% set available_count = slot.slot_list | selectattr('slot_status', 'equalto', 'A') | list | length %}
+{% set occupied_count = slot.slot_list | selectattr('slot_status', 'equalto', 'O') | list | length %}
+
+<div class="row justify-content-center">
+    <div class="col-12 col-md-8 col-lg-6">
+        <section class="panel">
+            <div class="panel-header">
+                <h3 class="mb-1 text-danger">Delete Parking Lot</h3>
+                <p class="text-secondary mb-0">This action permanently removes lot details and slot records.</p>
+            </div>
+            <div class="panel-body pt-2">
+                <p class="mb-3">Are you sure you want to delete <strong>{{ slot.lot_title }}</strong>?</p>
+
+                <div class="alert alert-info">
+                    <strong>Location:</strong> {{ slot.lot_location }}<br>
+                    <strong>Total Slots:</strong> {{ slot.total_slots }}<br>
+                    <strong>Available Slots:</strong> {{ available_count }} / {{ slot.total_slots }}
+                </div>
+
+                {% if occupied_count > 0 %}
+                    <div class="alert alert-warning mb-3">
+                        <strong>Warning:</strong> {{ occupied_count }} slot(s) are currently occupied. Clear active bookings first.
+                    </div>
+                {% endif %}
+
+                <form method="POST" action="{{ url_for('delete_slot_confirmed', slot_id=slot.lot_id) }}">
+                    <div class="d-flex flex-wrap gap-2 justify-content-end">
+                        <a href="{{ url_for('admin_login') }}" class="btn btn-outline-secondary">Cancel</a>
                         {% if occupied_count > 0 %}
-                            <div class="alert alert-warning">
-                                <small><strong>Warning:</strong> This parking lot has active bookings. You cannot delete it until all slots are vacated.</small>
-                            </div>
+                            <button type="button" class="btn btn-danger" disabled>Cannot Delete</button>
+                        {% else %}
+                            <button type="submit" class="btn btn-danger"
+                                    onclick="return confirm('This action cannot be undone. Are you absolutely sure?')">
+                                Yes, Delete Parking Lot
+                            </button>
                         {% endif %}
                     </div>
-                    
-                    <form method="POST" action="{{ url_for('delete_slot_confirmed', slot_id=slot.lot_id) }}">
-                        <div class="d-grid gap-2">
-                            {% if occupied_count > 0 %}
-                                <button type="button" class="btn btn-danger btn-sm rounded-pill" disabled>
-                                    Cannot Delete - Active Bookings
-                                </button>
-                            {% else %}
-                                <button type="submit" class="btn btn-danger btn-sm rounded-pill" 
-                                        onclick="return confirm('This action cannot be undone. Are you absolutely sure?')">
-                                    Yes, Delete Parking Lot
-                                </button>
-                            {% endif %}
-                            <a href="{{ url_for('admin_login') }}" class="btn btn-secondary btn-sm rounded-pill">Cancel</a>
-                        </div>
-                    </form>
-                </div>
+                </form>
             </div>
-        </div>
+        </section>
     </div>
 </div>
 {% endblock %}

@@ -1,60 +1,191 @@
 <style>
-    .nav-link.active-page {
-        background-color: #0d6efd;
-        color: white;
-        padding: 8px 18px;
+    .app-navbar {
+        position: sticky;
+        top: 0;
+        z-index: 1100;
+        background: rgba(15, 23, 42, 0.9);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid rgba(139, 164, 198, 0.24);
+        box-shadow: 0 8px 24px rgba(6, 15, 29, 0.2);
+        min-height: 64px;
+    }
+
+    .app-navbar .navbar-collapse {
+        align-items: center;
+    }
+
+    .app-navbar .navbar-brand {
+        color: #f5fbff;
+        font-size: 1.15rem;
+        font-weight: 800;
+        letter-spacing: 0.3px;
+    }
+
+    .app-navbar .nav-link {
+        color: #e8f1fb;
         font-weight: 600;
-        border-radius: 6px;
-        box-shadow: 0 2px 6px rgba(13, 110, 253, 0.2);
-        transition: none;
+        border-radius: 999px;
+        padding: 0.5rem 0.9rem;
+        line-height: 1.2;
+        transition: all 0.2s ease;
     }
 
-    .nav-link {
-        color: #343a40;
+    .app-navbar .nav-link:hover {
+        color: #ffffff;
+        background: rgba(91, 149, 217, 0.25);
+    }
+
+    .app-navbar .nav-link.active-page {
+        color: #fff;
+        background: linear-gradient(120deg, #14b8a6, #2b6ba5);
+        box-shadow: 0 8px 18px rgba(25, 111, 163, 0.36);
+    }
+
+    .brand-mark {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        display: inline-grid;
+        place-items: center;
+        background: linear-gradient(120deg, #14b8a6, #0f766e);
+        color: #fff;
+        margin-right: 10px;
+        font-size: 1.1rem;
+    }
+
+    .brand-sub {
+        display: block;
+        font-size: 0.68rem;
+        opacity: 0.82;
+        letter-spacing: 0.25px;
+        margin-top: -2px;
         font-weight: 500;
-        padding: 8px 16px;
-        border-radius: 6px;
-        transition: none;
     }
 
-    body {
-        background-color: #f8f9fa;
+    .user-chip {
+        border: 1px solid rgba(139, 164, 198, 0.35);
+        border-radius: 999px;
+        color: #f5fbff;
+        padding: 0.22rem 0.72rem 0.22rem 0.36rem;
+        background: rgba(23, 50, 83, 0.55);
+        display: inline-flex;
+        align-items: center;
+        min-height: 38px;
     }
 
-    .navbar {
-        background-color: white;
+    .user-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-grid;
+        place-items: center;
+        background: linear-gradient(120deg, #14b8a6, #0f766e);
+        color: #fff;
+        font-size: 0.8rem;
+        font-weight: 700;
+        margin-right: 6px;
     }
 
-    .navbar-brand {
-        font-size: 1.3rem;
+    .dropdown-menu.nav-user-menu {
+        border-radius: 12px;
+        border: 1px solid #dbe7f4;
+        box-shadow: 0 12px 24px rgba(10, 30, 53, 0.18);
+        min-width: 210px;
+    }
+
+    .dropdown-item.logout-item {
+        color: #b42318;
+        font-weight: 600;
+    }
+
+    @media (max-width: 991px) {
+        .app-navbar .nav-link {
+            margin-top: 0.3rem;
+        }
+
+        .user-chip {
+            margin-top: 0.6rem;
+            display: inline-flex;
+            width: fit-content;
+        }
+
+        .brand-sub {
+            display: none;
+        }
     }
 </style>
 
- <nav class="navbar navbar-expand-lg bg-body-tertiary shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="{{ url_for('login') }}">Vehicle Parking</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
-                    aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+<nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+    <div class="container app-container">
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('login') }}">
+            <span class="brand-mark">🚗</span>
+            <span>
+                Vehicle Parking
+                <span class="brand-sub">Reserve. Park. Go.</span>
+            </span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-                    {% if not session.get('user_id') %}
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-lg-center gap-1">
+                {% if not nav_user %}
                     <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'login' %}active-page{% endif %}" href="{{ url_for('login') }}">Login</a>
                     </li>
-                    <li class="nav-item ms-2">
+                    <li class="nav-item">
                         <a class="nav-link {% if request.endpoint == 'register' %}active-page{% endif %}" href="{{ url_for('register') }}">Register</a>
                     </li>
+                {% else %}
+                    {% if nav_is_admin %}
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'admin_login' %}active-page{% endif %}" href="{{ url_for('admin_login') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}#manage-lots">Lots</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('admin_login') }}#booking-history">Bookings</a>
+                        </li>
                     {% else %}
-                    <li class="nav-item ms-2">
-                        <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
-                    </li>
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.endpoint == 'user_login' %}active-page{% endif %}" href="{{ url_for('user_login') }}">Dashboard</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user_login') }}#available-lots">Lots</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user_login') }}#my-bookings">My Bookings</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{{ url_for('user_login') }}#profile">Profile</a>
+                        </li>
                     {% endif %}
-                </ul>
-            </div>
-            
+                    <li class="nav-item dropdown ms-lg-2">
+                        <a class="nav-link dropdown-toggle user-chip" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <span class="user-avatar">{{ nav_user.name[0]|upper if nav_user.name else 'U' }}</span>
+                            {{ nav_user.name or nav_user.uname }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end nav-user-menu">
+                            <li class="px-3 py-2 border-bottom">
+                                <div class="fw-semibold">{{ nav_user.name or nav_user.uname }}</div>
+                                <div class="text-muted small">{{ nav_user.uname }}</div>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{{ url_for('admin_login') if nav_is_admin else url_for('user_login') }}">Dashboard</a>
+                            </li>
+                            {% if not nav_is_admin %}
+                                <li><a class="dropdown-item" href="{{ url_for('user_login') }}#my-bookings">My Bookings</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item logout-item" href="{{ url_for('logout') }}">Logout</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>

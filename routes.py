@@ -13,10 +13,10 @@ def init_routes(app):
     @app.route('/login', methods=['GET', 'POST'])
     def login():
         if request.method == 'POST':
-            uname = request.form['uname']
-            upass = request.form['upass']
-            user = AppUser.query.filter_by(uname=uname).first()
-            if user and check_password_hash(user.upass, upass):
+            username = request.form.get('username')
+            password = request.form.get('password')
+            user = AppUser.query.filter_by(uname=username).first()
+            if user and check_password_hash(user.upass, password):
                 session['user_id'] = user.uid
                 session['is_admin'] = user.isAdmin
                 if user.isAdmin:
@@ -28,38 +28,36 @@ def init_routes(app):
         return render_template('login.html')
 
     # Register
-    @app.route('/register')
+    @app.route('/register', methods=['GET', 'POST'])
     def register():
+        if request.method == 'POST':
+            uname = request.form.get('username')
+            upass = request.form.get('password')
+            confirm_pass = request.form.get('confirm_password')
+            name = request.form.get('name')
+
+            if not uname or not upass or not confirm_pass:
+                flash('Please fill out all fields')
+                return redirect(url_for('register'))
+
+            if upass != confirm_pass:
+                flash('Passwords do not match')
+                return redirect(url_for('register'))
+
+            user = AppUser.query.filter_by(uname=uname).first()
+            if user:
+                flash('Username already exists')
+                return redirect(url_for('register'))
+
+            hashed_password = generate_password_hash(upass)
+
+            new_user = AppUser(uname=uname, upass=hashed_password, name=name)
+            db.session.add(new_user)
+            db.session.commit()
+
+            flash('Registration successful! Please log in.')
+            return redirect(url_for('login'))
         return render_template('register.html')
-
-    @app.route('/register', methods=['POST'])
-    def register_post():
-        uname = request.form.get('username')
-        upass = request.form.get('password')
-        confirm_pass = request.form.get('confirm_password')
-        name = request.form.get('name')
-
-        if not uname or not upass or not confirm_pass:
-            flash('Please fill out all fields')
-            return redirect(url_for('register'))
-
-        if upass != confirm_pass:
-            flash('Passwords do not match')
-            return redirect(url_for('register'))
-
-        user = AppUser.query.filter_by(uname=uname).first()
-        if user:
-            flash('Username already exists')
-            return redirect(url_for('register'))
-
-        hashed_password = generate_password_hash(upass)
-
-        new_user = AppUser(uname=uname, upass=hashed_password, name=name)
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash('Registration successful! Please log in.')
-        return redirect(url_for('login'))
     
     # Logout
     @app.route('/logout')

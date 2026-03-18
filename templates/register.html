@@ -6,65 +6,133 @@
 
 {% block style %}
 <style>
-    body {
-        background-color: #f2f4f7;
+    .register-shell {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3) 0;
     }
-    .register-container {
-        max-width: 500px;
-        margin: 50px auto;
+
+    .register-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+        width: 100%;
+        max-width: 450px;
+        padding: var(--space-4);
     }
-    .card {
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+    .register-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-900);
     }
-    .form-label {
-        font-size: 0.9rem;
-        font-weight: 500;
-        margin-bottom: 4px;
+
+    .register-card > .text-secondary {
+        margin-bottom: var(--space-3);
+        font-size: 0.95rem;
     }
-    .form-control {
-        font-size: 0.9rem;
-        padding: 8px 10px;
+
+    .toggle-pass {
+        border: 1px solid var(--surface-300);
+        border-left: 0;
+        background: #fff;
     }
-    .btn-primary {
-        font-size: 0.9rem;
-        padding: 8px;
-        background-color: #0d6efd;
-        border: none;
+
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-500);
+        font-size: 0.83rem;
+        margin: var(--space-3) 0;
     }
-    .btn-primary:hover {
-        background-color: #0b5ed7;
+
+    .divider::before,
+    .divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: var(--surface-300);
+    }
+
+    .form-text {
+        color: var(--text-500);
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+    }
+
+    @media (max-width: 768px) {
+        .register-shell {
+            padding: var(--space-2) 0;
+        }
+
+        .register-card {
+            margin: 0 var(--space-2);
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container register-container">
-    <div class="card shadow-sm">
-        <div class="card-body px-4 py-3">
-            <h4 class="text-center fw-bold mb-3">Create Account</h4>
-            <form method="POST" action="{{ url_for('register_post') }}">
-                <div class="mb-2">
-                    <label for="username" class="form-label">Username</label>
-                    <input type="text" id="username" name="username" class="form-control form-control-sm" required>
+<section class="register-shell">
+    <div class="register-card">
+        <h2>Register</h2>
+        <p class="text-secondary">Set up your account in under a minute.</p>
+
+        <form method="POST" action="{{ url_for('register') }}" novalidate>
+            <div class="mb-3">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" minlength="3" required>
+                <small class="form-text">At least 3 characters.</small>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" minlength="4" required>
+                    <button class="btn toggle-pass" type="button" id="toggleRegPass" aria-label="Show password">Show</button>
                 </div>
-                <div class="mb-2">
-                    <label for="password" class="form-label">Password</label>
-                    <input type="password" id="password" name="password" class="form-control form-control-sm" required>
+                <small class="form-text">Use a strong password with letters and numbers.</small>
+            </div>
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <div class="input-group">
+                    <input type="password" id="confirm_password" name="confirm_password" class="form-control" minlength="4" required>
+                    <button class="btn toggle-pass" type="button" id="toggleConfirmPass" aria-label="Show confirm password">Show</button>
                 </div>
-                <div class="mb-2">
-                    <label for="confirm_password" class="form-label">Confirm Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" class="form-control form-control-sm" required>
-                </div>
-                <div class="mb-3">
-                    <label for="name" class="form-label">Full Name</label>
-                    <input type="text" id="name" name="name" class="form-control form-control-sm">
-                </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-sm">Register</button>
-                </div>
-            </form>
-        </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary py-2">Create Account</button>
+            </div>
+        </form>
+
+        <div class="divider">or</div>
+        <a href="{{ url_for('login') }}" class="btn btn-outline-primary w-100">Already have an account? Login</a>
     </div>
-</div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    function attachToggle(buttonId, inputId) {
+        const button = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+        if (!button || !input) {
+            return;
+        }
+        button.addEventListener('click', () => {
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            button.textContent = show ? 'Hide' : 'Show';
+        });
+    }
+
+    attachToggle('toggleRegPass', 'password');
+    attachToggle('toggleConfirmPass', 'confirm_password');
+</script>
 {% endblock %}

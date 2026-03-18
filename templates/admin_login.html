@@ -4,19 +4,53 @@
     Admin Dashboard
 {% endblock %}
 
-{% block content %}
-<div class="container mt-4 mb-5">
-    <h2 class="text-center mb-4">Welcome, <strong>{{ user.name }}</strong>!</h2>
-    <p class="text-center text-muted fs-5 mb-5">Manage parking lots, monitor bookings, and maintain operations with ease.</p>
+{% block style %}
+<style>
+    .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-2);
+    }
 
-    <div class="card shadow-sm mb-5 border-0">
-        <div class="card-header bg-white border-bottom-0">
-            <h4 class="fw-semibold mb-0">🅿️ Manage Parking Lots</h4>
+    .action-cluster {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--space-2);
+        align-items: center;
+    }
+
+    .table-actions {
+        display: inline-flex;
+        gap: 0.4rem;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="panel mb-4">
+    <div class="panel-header pb-2">
+        <h2 class="mb-1">Admin Console</h2>
+        <p class="text-secondary mb-0">Welcome, {{ user.name }}. Manage lots, slot capacity, and booking activity from this dashboard.</p>
+    </div>
+</section>
+
+<section id="manage-lots" class="panel mb-4">
+    <div class="panel-header section-head">
+        <h4 class="mb-0">Manage Parking Lots</h4>
+        <div class="action-cluster">
+            <span class="stat-chip">Lots: {{ lots|length }}</span>
+            <a href="{{ url_for('add_slot') }}" class="btn btn-success btn-sm">Add Parking Lot</a>
         </div>
-        <div class="card-body pt-2">
+    </div>
+    <div class="panel-body pt-2">
+        {% if lots %}
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light text-center">
+                <table class="table table-hover align-middle">
+                    <thead class="text-center">
                         <tr>
                             <th>ID</th>
                             <th>Name</th>
@@ -30,40 +64,42 @@
                     </thead>
                     <tbody>
                         {% for lot in lots %}
-                        <tr class="text-center">
-                            <td>{{ lot.lot_id }}</td>
-                            <td>{{ lot.lot_title }}</td>
-                            <td>{{ lot.lot_location }}</td>
-                            <td>{{ lot.lot_zip }}</td>
-                            <td>{{ lot.total_slots }}</td>
-                            <td>{{ lot.available_count }}</td>
-                            <td>{{ lot.rate_per_hr }}</td>
-                            <td>
-                                <a href="{{ url_for('view_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-info me-1">View</a>
-                                <a href="{{ url_for('edit_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-warning me-1">Edit</a>
-                                <a href="{{ url_for('delete_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
-                            </td>
-                        </tr>
+                            <tr class="text-center">
+                                <td>{{ lot.lot_id }}</td>
+                                <td class="fw-semibold">{{ lot.lot_title }}</td>
+                                <td>{{ lot.lot_location }}</td>
+                                <td>{{ lot.lot_zip }}</td>
+                                <td>{{ lot.total_slots }}</td>
+                                <td><span class="badge text-bg-success">{{ lot.available_count }}</span></td>
+                                <td>₹{{ lot.rate_per_hr }}</td>
+                                <td>
+                                    <div class="table-actions">
+                                        <a href="{{ url_for('view_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-info">View</a>
+                                        <a href="{{ url_for('edit_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-warning">Edit</a>
+                                        <a href="{{ url_for('delete_slot', slot_id=lot.lot_id) }}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                    </div>
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            <div class="text-end mt-3">
-                <a href="{{ url_for('add_slot') }}" class="btn btn-success">Add Parking Lot</a>
-            </div>
-        </div>
+        {% else %}
+            <p class="text-muted mb-0">No parking lots found.</p>
+        {% endif %}
     </div>
+</section>
 
-    <!-- Booking History -->
-    <div class="card shadow-sm border-0">
-        <div class="card-header bg-white border-bottom-0">
-            <h4 class="fw-semibold mb-0">📑 Booking History</h4>
-        </div>
-        <div class="card-body pt-2">
-            {% if all_bookings %}
+<section id="booking-history" class="panel">
+    <div class="panel-header section-head">
+        <h4 class="mb-0">Booking History</h4>
+        <span class="stat-chip">Records: {{ all_bookings|length }}</span>
+    </div>
+    <div class="panel-body pt-2">
+        {% if all_bookings %}
             <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle">
-                    <thead class="table-light text-center">
+                <table class="table table-hover align-middle">
+                    <thead class="text-center">
                         <tr>
                             <th>Booking ID</th>
                             <th>Slot ID</th>
@@ -79,51 +115,50 @@
                     </thead>
                     <tbody>
                         {% for booking in all_bookings %}
-                        <tr class="text-center">
-                            <td>{{ booking.rid }}</td>
-                            <td>{{ booking.reserved_slot.slot_id }}</td>
-                            <td>{{ booking.reserved_by.name }}</td>
-                            <td>{{ booking.reserved_slot.parent_lot.lot_title }}</td>
-                            <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
-                            <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
-                                {% if booking.time_out %}
-                                    {{ booking.time_out.strftime('%Y-%m-%d %H:%M') }}
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">Active</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.time_out %}
-                                    {% set duration = booking.time_out - booking.time_in %}
-                                    {{ duration.total_seconds() // 3600 }}h {{ (duration.total_seconds() % 3600) // 60 }}m
-                                {% else %}
-                                    <span class="text-muted">Ongoing</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.time_out %}
-                                    <span class="badge bg-success">Completed</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">Active</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.final_charge %}
-                                    ₹{{ "%.2f"|format(booking.final_charge) }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
+                            <tr class="text-center">
+                                <td>{{ booking.rid }}</td>
+                                <td>{{ booking.reserved_slot.slot_id }}</td>
+                                <td>{{ booking.reserved_by.name }}</td>
+                                <td>{{ booking.reserved_slot.parent_lot.lot_title }}</td>
+                                <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
+                                <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    {% if booking.time_out %}
+                                        {{ booking.time_out.strftime('%Y-%m-%d %H:%M') }}
+                                    {% else %}
+                                        <span class="badge text-bg-warning">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.time_out %}
+                                        {% set duration = booking.time_out - booking.time_in %}
+                                        {{ duration.total_seconds() // 3600 }}h {{ (duration.total_seconds() % 3600) // 60 }}m
+                                    {% else %}
+                                        <span class="text-muted">Ongoing</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.time_out %}
+                                        <span class="badge text-bg-success">Completed</span>
+                                    {% else %}
+                                        <span class="badge text-bg-warning">Active</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if booking.final_charge %}
+                                        ₹{{ "%.2f"|format(booking.final_charge) }}
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
                         {% endfor %}
                     </tbody>
                 </table>
             </div>
-            {% else %}
-                <p class="text-muted text-center">No bookings found.</p>
-            {% endif %}
-        </div>
+        {% else %}
+            <p class="text-muted mb-0">No bookings found.</p>
+        {% endif %}
     </div>
-</div>
+</section>
 {% endblock %}

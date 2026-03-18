@@ -1,0 +1,422 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Login / Register
+{% endblock %}
+
+{% block style %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3) 0;
+        background: var(--surface-50);
+    }
+
+    .auth-wrapper {
+        width: 100%;
+        max-width: 1200px;
+        padding: 0 var(--space-3);
+    }
+
+    .auth-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    /* Left Column: Login */
+    .auth-left {
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        color: #fff;
+    }
+
+    .auth-left-content {
+        max-width: 420px;
+    }
+
+    .auth-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: var(--space-3);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .auth-left h2 {
+        font-size: 2rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        font-weight: 700;
+    }
+
+    .auth-left p {
+        font-size: 1rem;
+        opacity: 0.95;
+        line-height: 1.6;
+        margin-bottom: var(--space-4);
+    }
+
+    .parking-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.8rem;
+        margin-top: var(--space-4);
+    }
+
+    .parking-slot {
+        background: rgba(255, 255, 255, 0.15);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 700;
+        font-size: 0.95rem;
+        backdrop-filter: blur(4px);
+    }
+
+    /* Right Column: Register */
+    .auth-right {
+        padding: var(--space-5);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        background: #f8fafc;
+    }
+
+    .auth-right-content {
+        max-width: 420px;
+    }
+
+    .auth-right h2 {
+        font-size: 2rem;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+        color: var(--text-900);
+        font-weight: 700;
+    }
+
+    .auth-right p {
+        font-size: 1rem;
+        color: var(--text-600);
+        line-height: 1.6;
+        margin-bottom: var(--space-4);
+    }
+
+    /* Form Styling */
+    .auth-form {
+        margin-bottom: var(--space-4);
+    }
+
+    .auth-form .form-label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: var(--text-700);
+        margin-bottom: 0.5rem;
+    }
+
+    .auth-form .form-control {
+        border: 1px solid var(--surface-300);
+        border-radius: 8px;
+        padding: 0.75rem 1rem;
+        font-size: 0.95rem;
+        background: #fff;
+        transition: all 0.2s;
+    }
+
+    .auth-form .form-control:focus {
+        border-color: #14b8a6;
+        background: #fff;
+        box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+    }
+
+    .auth-form .form-text {
+        font-size: 0.8rem;
+        color: var(--text-500);
+        margin-top: 0.3rem;
+    }
+
+    .form-divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-500);
+        font-size: 0.85rem;
+        margin: var(--space-3) 0;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: var(--surface-300);
+    }
+
+    /* Buttons */
+    .btn-login {
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.85rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-login:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(15, 118, 110, 0.2);
+    }
+
+    .btn-register {
+        background: linear-gradient(135deg, #0f766e 0%, #14b8a6 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 0.85rem 1.5rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-register:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(15, 118, 110, 0.2);
+    }
+
+    .toggle-pass {
+        border: 1px solid var(--surface-300);
+        border-left: 0;
+        background: #fff;
+        cursor: pointer;
+        font-size: 0.85rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .toggle-pass:hover {
+        background: #f9fafb;
+    }
+
+    /* Link Styling */
+    .auth-link {
+        color: #14b8a6;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.2s;
+    }
+
+    .auth-link:hover {
+        color: #0f766e;
+    }
+
+    .input-group .form-control {
+        border-radius: 8px 0 0 8px;
+    }
+
+    .input-group .toggle-pass {
+        border-radius: 0 8px 8px 0;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+        .auth-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .auth-left,
+        .auth-right {
+            padding: var(--space-4);
+        }
+
+        .auth-left h2,
+        .auth-right h2 {
+            font-size: 1.5rem;
+        }
+
+        .parking-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.6rem;
+        }
+
+        .parking-slot {
+            padding: 0.8rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .auth-container {
+            padding: var(--space-2) 0;
+        }
+
+        .auth-wrapper {
+            padding: 0 var(--space-2);
+        }
+
+        .auth-left,
+        .auth-right {
+            padding: var(--space-3);
+            min-height: auto;
+        }
+
+        .auth-left h2,
+        .auth-right h2 {
+            font-size: 1.25rem;
+        }
+
+        .auth-left p,
+        .auth-right p {
+            font-size: 0.9rem;
+        }
+
+        .parking-grid {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-top: var(--space-3);
+        }
+
+        .parking-slot {
+            padding: 0.6rem;
+            font-size: 0.8rem;
+        }
+
+        .auth-form .form-control,
+        .btn-login,
+        .btn-register {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="auth-container">
+    <div class="auth-wrapper">
+        <div class="auth-grid">
+            <!-- LEFT: LOGIN -->
+            <div class="auth-left">
+                <div class="auth-left-content">
+                    <span class="auth-badge">Welcome Back</span>
+                    <h2>Sign In to PoolUp</h2>
+                    <p>Access your dashboard, find available parking, and manage bookings from one place.</p>
+
+                    <form method="POST" action="{{ url_for('login') }}" novalidate class="auth-form">
+                        <div class="mb-3">
+                            <label for="login-uname" class="form-label">Username</label>
+                            <input type="text" id="login-uname" name="uname" class="form-control" required>
+                            <small class="form-text">Enter your username to continue.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="login-pass" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" id="login-pass" name="upass" class="form-control"
+                                    minlength="4" required>
+                                <button class="btn toggle-pass" type="button" id="toggleLoginPass"
+                                    aria-label="Show password">Show</button>
+                            </div>
+                            <small class="form-text">Password is case-sensitive.</small>
+                        </div>
+
+                        <button type="submit" class="btn btn-login mb-3">Sign In</button>
+                    </form>
+
+                    <div class="parking-grid">
+                        <div class="parking-slot">A1</div>
+                        <div class="parking-slot">A2</div>
+                        <div class="parking-slot">B3</div>
+                        <div class="parking-slot">C2</div>
+                        <div class="parking-slot">D1</div>
+                        <div class="parking-slot">E4</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT: REGISTER -->
+            <div class="auth-right">
+                <div class="auth-right-content">
+                    <span class="auth-badge">New Here?</span>
+                    <h2>Create Account</h2>
+                    <p>Set up your parking profile in seconds and start booking slots instantly.</p>
+
+                    <form method="POST" action="{{ url_for('register_post') }}" novalidate class="auth-form">
+                        <div class="mb-3">
+                            <label for="register-fullname" class="form-label">Full Name</label>
+                            <input type="text" id="register-fullname" name="name" class="form-control" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="register-username" class="form-label">Username</label>
+                            <input type="text" id="register-username" name="username" class="form-control"
+                                minlength="3" required>
+                            <small class="form-text">At least 3 characters.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="register-pass" class="form-label">Password</label>
+                            <div class="input-group">
+                                <input type="password" id="register-pass" name="password" class="form-control"
+                                    minlength="4" required>
+                                <button class="btn toggle-pass" type="button" id="toggleRegPass"
+                                    aria-label="Show password">Show</button>
+                            </div>
+                            <small class="form-text">Strong password recommended.</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="register-confirm" class="form-label">Confirm Password</label>
+                            <div class="input-group">
+                                <input type="password" id="register-confirm" name="confirm_password"
+                                    class="form-control" minlength="4" required>
+                                <button class="btn toggle-pass" type="button" id="toggleConfirmPass"
+                                    aria-label="Show password">Show</button>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-register">Create Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    function attachToggle(buttonId, inputId) {
+        const button = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+        if (!button || !input) return;
+        button.addEventListener('click', () => {
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            button.textContent = show ? 'Hide' : 'Show';
+        });
+    }
+
+    attachToggle('toggleLoginPass', 'login-pass');
+    attachToggle('toggleRegPass', 'register-pass');
+    attachToggle('toggleConfirmPass', 'register-confirm');
+</script>
+{% endblock %}

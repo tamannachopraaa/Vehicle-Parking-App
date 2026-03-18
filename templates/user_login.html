@@ -4,129 +4,305 @@
     Home Page
 {% endblock %}
 
+{% block style %}
+<style>
+    .dashboard-stack {
+        display: grid;
+        gap: var(--space-4);
+    }
+
+    .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        align-items: center;
+        gap: var(--space-2);
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--space-2);
+        align-items: stretch;
+    }
+
+    .metric-card {
+        background: linear-gradient(150deg, #ffffff, #f2f8ff);
+        border: 1px solid #dbe7f4;
+        border-radius: 14px;
+        padding: var(--space-2);
+        box-shadow: 0 8px 20px rgba(22, 45, 76, 0.08);
+        min-height: 138px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .metric-title {
+        color: var(--text-500);
+        font-size: 0.82rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .metric-value {
+        font-size: 1.45rem;
+        font-weight: 800;
+        margin-bottom: 0;
+        color: var(--brand-900);
+    }
+
+    .lot-card {
+        background: #fff;
+        border: 1px solid #dce8f5;
+        border-radius: 14px;
+        box-shadow: 0 10px 22px rgba(16, 37, 66, 0.08);
+        padding: var(--space-2);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .lot-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 16px 28px rgba(16, 37, 66, 0.12);
+    }
+
+    .lot-location {
+        color: var(--text-500);
+        font-size: 0.9rem;
+    }
+
+    .availability-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        border-radius: 999px;
+        padding: 0.33rem 0.7rem;
+        font-weight: 700;
+        font-size: 0.78rem;
+    }
+
+    .availability-pill.high {
+        color: #0a7c45;
+        background: rgba(16, 185, 129, 0.15);
+    }
+
+    .availability-pill.medium {
+        color: #9a6700;
+        background: rgba(245, 158, 11, 0.2);
+    }
+
+    .availability-pill.low {
+        color: #b42318;
+        background: rgba(239, 68, 68, 0.16);
+    }
+
+    .booking-card {
+        border: 1px solid #dce8f5;
+        border-radius: 14px;
+        background: #fff;
+        padding: var(--space-2);
+        box-shadow: 0 10px 22px rgba(16, 37, 66, 0.08);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .booking-meta {
+        color: var(--text-500);
+        font-size: 0.88rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .fab-book {
+        position: fixed;
+        right: max(1rem, calc((100vw - var(--content-max)) / 2 + 1.5rem));
+        bottom: 1.5rem;
+        z-index: 1050;
+        border-radius: 999px;
+        box-shadow: 0 14px 32px rgba(23, 66, 117, 0.34);
+        padding: 0.78rem 1.1rem;
+    }
+
+    .empty-state {
+        text-align: center;
+        border: 1px dashed #c6d7ea;
+        border-radius: 14px;
+        padding: var(--space-4);
+        background: #f8fbff;
+    }
+
+    @media (max-width: 991px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+    }
+
+    @media (max-width: 575px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .fab-book {
+            width: calc(100% - 2rem);
+            right: 1rem;
+            text-align: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-4 mb-5">
+{% if user %}
+    {% set booking_ns = namespace(active=0, spent=0.0) %}
+    {% for booking in user.bookings %}
+        {% if not booking.time_out %}
+            {% set booking_ns.active = booking_ns.active + 1 %}
+        {% endif %}
+        {% if booking.final_charge %}
+            {% set booking_ns.spent = booking_ns.spent + booking.final_charge %}
+        {% endif %}
+    {% endfor %}
 
-    {% if user %}
-        <h2 class="mb-4 display-6 fw-medium text-dark">
-            Welcome back, <span class="text-success fw-semibold">{{ user.name }}</span>!
-        </h2>
-
-        <section class="mb-5">
-            <h4 class="mb-3 border-bottom pb-2 text-secondary">🚗 Available Parking Slots</h4>
-
-            {% if available_slots %}
-            <div class="table-responsive">
-                <table class="table table-hover table-bordered align-middle shadow-sm rounded">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th>Slot Title</th>
-                            <th>Location</th>
-                            <th>Available</th>
-                            <th>Rate/Hour (₹)</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        {% for slot in available_slots %}
-                        <tr>
-                            <td class="fw-semibold">{{ slot.lot_title }}</td>
-                            <td>{{ slot.lot_location }}</td>
-                            <td><span class="badge bg-success">{{ slot.available_count }}</span></td>
-                            <td>₹{{ slot.rate_per_hr }}</td>
-                            <td>
-                                <a href="{{ url_for('view_slot', slot_id=slot.lot_id) }}" class="btn btn-sm btn-outline-primary me-1">
-                                    🔍 View
-                                </a>
-                                <a href="{{ url_for('book_slot', lot_id=slot.lot_id) }}" class="btn btn-sm btn-outline-success">
-                                    📅 Book
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-                <p class="text-muted fst-italic">No parking lots available at the moment.</p>
-            {% endif %}
-        </section>
-
-        <section>
-            <h4 class="mb-3 border-bottom pb-2 text-secondary">📋 Your Bookings</h4>
-
-            {% if user.bookings %}
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle shadow-sm rounded">
-                    <thead class="table-light text-center">
-                        <tr>
-                            <th>ID</th>
-                            <th>Slot</th>
-                            <th>Location</th>
-                            <th>Slot ID</th>
-                            <th>Booked At</th>
-                            <th>Duration</th>
-                            <th>Cost (₹)</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-center">
-                        {% for booking in user.bookings %}
-                        <tr>
-                            <td>{{ booking.rid }}</td>
-                            <td class="fw-semibold">{{ booking.reserved_slot.parent_lot.lot_title }}</td>
-                            <td>{{ booking.reserved_slot.parent_lot.lot_location }}</td>
-                            <td>{{ booking.reserved_slot.slot_id }}</td>
-                            <td>{{ booking.time_in.strftime('%Y-%m-%d %H:%M') }}</td>
-                            <td>
-                                {% if booking.time_out %}
-                                    {% set duration = booking.time_out - booking.time_in %}
-                                    {{ duration.total_seconds() // 3600 }}h {{ (duration.total_seconds() % 3600) // 60 }}m
-                                {% else %}
-                                    <span class="text-muted">Ongoing</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.final_charge %}
-                                    ₹{{ "%.2f"|format(booking.final_charge) }}
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if booking.time_out %}
-                                    <span class="badge bg-success">Completed</span>
-                                {% else %}
-                                    <span class="badge bg-warning text-dark">Active</span>
-                                {% endif %}
-                            </td>
-                            <td>
-                                {% if not booking.time_out %}
-                                    <a href="{{ url_for('release_slot', booking_id=booking.rid) }}" 
-                                       class="btn btn-sm btn-outline-danger"
-                                       onclick="return confirm('Are you sure you want to release this slot?')">
-                                       ❌ Release
-                                    </a>
-                                {% else %}
-                                    <span class="text-muted">-</span>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% else %}
-                <p class="text-muted fst-italic">You have no bookings yet.</p>
-            {% endif %}
-        </section>
-
-    {% else %}
-        <div class="alert alert-info mt-4 shadow-sm">
-            <p class="mb-0">Please log in to access parking features.</p>
+    <div class="dashboard-stack">
+    <section id="profile" class="panel">
+        <div class="panel-header pb-2">
+            <h2 class="mb-1">Welcome {{ user.name }}!</h2>
+            <p class="text-secondary mb-0">Check availability, manage bookings, and reserve your next parking slot quickly.</p>
         </div>
-    {% endif %}
+        <div class="panel-body pt-1">
+            <div class="stats-grid">
+                <div class="metric-card">
+                    <div class="metric-title">Active Booking</div>
+                    <p class="metric-value">{{ booking_ns.active }}</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Total Spent</div>
+                    <p class="metric-value">₹{{ "%.2f"|format(booking_ns.spent) }}</p>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-title">Available Slots</div>
+                    <p class="metric-value">{{ available_slots|length }}</p>
+                </div>
+                <div class="metric-card d-flex flex-column justify-content-between">
+                    <div class="metric-title">Quick Book</div>
+                    <a class="btn btn-primary btn-sm" href="#available-lots">Book Parking</a>
+                </div>
+            </div>
+        </div>
+    </section>
 
-</div>
+    <section id="available-lots" class="panel">
+        <div class="panel-header section-head">
+            <h4 class="mb-0">Available Parking Lots</h4>
+            <span class="stat-chip">Browse and reserve instantly</span>
+        </div>
+        <div class="panel-body pt-2">
+            {% if available_slots %}
+                <div class="row g-3 align-items-stretch">
+                    {% for slot in available_slots %}
+                        {% if slot.available_count > 10 %}
+                            {% set availability_class = 'high' %}
+                            {% set availability_text = slot.available_count ~ ' Available' %}
+                        {% elif slot.available_count > 3 %}
+                            {% set availability_class = 'medium' %}
+                            {% set availability_text = slot.available_count ~ ' Available' %}
+                        {% else %}
+                            {% set availability_class = 'low' %}
+                            {% set availability_text = 'Only ' ~ slot.available_count ~ ' left!' %}
+                        {% endif %}
+                        <div class="col-12 col-md-6 col-xl-4">
+                            <article class="lot-card">
+                                <h5 class="mb-1">{{ slot.lot_title }}</h5>
+                                <p class="lot-location mb-2">{{ slot.lot_location }}</p>
+                                <p class="mb-2 fw-semibold">₹{{ slot.rate_per_hr }}/hr</p>
+                                <div class="availability-pill {{ availability_class }} mb-3">
+                                    {% if availability_class == 'high' %}
+                                        High
+                                    {% elif availability_class == 'medium' %}
+                                        Medium
+                                    {% else %}
+                                        Low
+                                    {% endif %}
+                                    {{ availability_text }}
+                                </div>
+                                <div class="d-flex gap-2 mt-auto">
+                                    <a href="{{ url_for('book_slot', lot_id=slot.lot_id) }}" class="btn btn-primary btn-sm flex-fill">Book Now</a>
+                                    <a href="{{ url_for('view_slot', slot_id=slot.lot_id) }}" class="btn btn-outline-primary btn-sm">View Details</a>
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h5 class="mb-1">No slots available now</h5>
+                    <p class="text-secondary mb-3">Please check back in a few minutes for new availability.</p>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+
+    <section id="my-bookings" class="panel">
+        <div class="panel-header section-head">
+            <h4 class="mb-0">Your Bookings</h4>
+            <span class="stat-chip">Total bookings: {{ user.bookings|length }}</span>
+        </div>
+        <div class="panel-body pt-2">
+            {% if user.bookings %}
+                <div class="row g-3 align-items-stretch">
+                    {% for booking in user.bookings|sort(attribute='time_in', reverse=True) %}
+                        <div class="col-12 col-lg-6">
+                            <article class="booking-card">
+                                <h5 class="mb-1">{{ booking.reserved_slot.parent_lot.lot_location }} - Slot {{ booking.reserved_slot.slot_id }}</h5>
+                                <p class="booking-meta">Start: {{ booking.time_in.strftime('%Y-%m-%d %I:%M %p') }}</p>
+                                <p class="booking-meta">
+                                    End:
+                                    {% if booking.time_out %}
+                                        {{ booking.time_out.strftime('%Y-%m-%d %I:%M %p') }}
+                                    {% else %}
+                                        Active now
+                                    {% endif %}
+                                </p>
+                                <p class="booking-meta mb-2">Payment: {% if booking.final_charge %}₹{{ "%.2f"|format(booking.final_charge) }}{% else %}Pending{% endif %}</p>
+                                <p class="mb-3">
+                                    Status:
+                                    {% if booking.time_out %}
+                                        <span class="badge text-bg-success">Completed</span>
+                                    {% else %}
+                                        <span class="badge text-bg-warning">Active</span>
+                                    {% endif %}
+                                </p>
+                                <div class="d-flex gap-2 mt-auto">
+                                    <a href="#available-lots" class="btn btn-outline-primary btn-sm">Extend</a>
+                                    {% if not booking.time_out %}
+                                        <a href="{{ url_for('release_slot', booking_id=booking.rid) }}" class="btn btn-outline-danger btn-sm"
+                                           onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel</a>
+                                    {% else %}
+                                        <button class="btn btn-outline-secondary btn-sm" disabled>Closed</button>
+                                    {% endif %}
+                                </div>
+                            </article>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <h5 class="mb-1">No bookings yet</h5>
+                    <p class="text-secondary mb-3">Find parking and reserve your first slot now.</p>
+                    <a href="#available-lots" class="btn btn-primary">Browse Slots</a>
+                </div>
+            {% endif %}
+        </div>
+    </section>
+    </div>
+
+    <a href="#available-lots" class="btn btn-primary fab-book">+ Book Parking</a>
+{% else %}
+    <div class="alert alert-info mt-4 shadow-sm">
+        <p class="mb-0">Please log in to access parking features.</p>
+    </div>
+{% endif %}
 {% endblock %}

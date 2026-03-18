@@ -6,60 +6,120 @@
 
 {% block style %}
 <style>
-    body {
-        background-color: #f8f9fa;
+    .login-shell {
+        min-height: calc(100vh - 64px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--space-3) 0;
     }
 
-    .login-container {
-        max-width: 400px; 
-        margin: 40px auto;
-        margin-top: 80px;
+    .login-card {
+        background: #fff;
+        border-radius: var(--radius-lg);
+        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.12);
+        width: 100%;
+        max-width: 450px;
+        padding: var(--space-4);
     }
 
-    .card {
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    .login-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-900);
     }
 
-    .form-label {
-        font-weight: 500;
-    }
-
-    .form-control {
+    .login-card > .text-secondary {
+        margin-bottom: var(--space-3);
         font-size: 0.95rem;
-        padding: 10px 12px;
     }
 
-    .btn-primary {
-        font-size: 0.95rem;
-        padding: 10px;
-        background-color: #0d6efd;
-        border: none;
+    .toggle-pass {
+        border: 1px solid var(--surface-300);
+        border-left: 0;
+        background: #fff;
     }
 
-    .btn-primary:hover {
-        background-color: #0b5ed7;
+    .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        color: var(--text-500);
+        font-size: 0.83rem;
+        margin: var(--space-3) 0;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: "";
+        height: 1px;
+        flex: 1;
+        background: var(--surface-300);
+    }
+
+    .form-text {
+        color: var(--text-500);
+        font-size: 0.78rem;
+        margin-top: 0.35rem;
+    }
+
+    @media (max-width: 768px) {
+        .login-shell {
+            padding: var(--space-2) 0;
+        }
+
+        .login-card {
+            margin: 0 var(--space-2);
+        }
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container login-container">
-    <div class="card shadow-lg">
-        <div class="card-body">
-            <h2 class="card-title text-center mb-4">Login</h2>
-            <form action="" method="POST">
-                <div class="mb-3">
-                    <label for="uname" class="form-label">Username:</label>
-                    <input type="text" id="uname" name="uname" class="form-control form-control-sm" required>
+<section class="login-shell">
+    <div class="login-card">
+        <h2>Login</h2>
+        <p class="text-secondary">Enter your credentials to continue.</p>
+
+        <form method="POST" action="{{ url_for('login') }}" novalidate>
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+                <small class="form-text">Enter your username</small>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <div class="input-group">
+                    <input type="password" id="password" name="password" class="form-control" required>
+                    <button class="btn toggle-pass" type="button" id="toggleLoginPass" aria-label="Show password">Show</button>
                 </div>
-                <div class="mb-3">
-                    <label for="upass" class="form-label">Password:</label>
-                    <input type="password" id="upass" name="upass" class="form-control form-control-sm" required>
-                </div>
-                <button type="submit" class="btn btn-primary w-100 btn-sm">Login</button>
-            </form>
-        </div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary py-2">Login</button>
+            </div>
+        </form>
+
+        <div class="divider">or</div>
+        <a href="{{ url_for('register') }}" class="btn btn-outline-primary w-100">Create a New Account</a>
     </div>
-</div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    function attachToggle(buttonId, inputId) {
+        const button = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+        if (!button || !input) {
+            return;
+        }
+        button.addEventListener('click', () => {
+            const show = input.type === 'password';
+            input.type = show ? 'text' : 'password';
+            button.textContent = show ? 'Hide' : 'Show';
+        });
+    }
+
+    attachToggle('toggleLoginPass', 'password');
+</script>
 {% endblock %}
