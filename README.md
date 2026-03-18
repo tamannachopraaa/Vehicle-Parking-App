@@ -4,6 +4,15 @@ A multi-user parking management system for 4-wheeler vehicle parking built using
 
 ---
 
+## 🌐 Live Demo
+
+[![Live Demo](https://img.shields.io/badge/Live-Demo-blueviolet)](https://vehicle-parking-app-ma7d.onrender.com)
+
+🚗 **Vehicle Parking App** is live!  
+Manage parking lots, book available parking slots, and track reservations seamlessly through a user-friendly web interface.
+
+---
+
 ## 📌 Project Description
 
 The **Vehicle Parking App** is designed to streamline the process of managing multiple parking lots and booking parking spots. It supports two roles:
@@ -45,4 +54,5 @@ This app was developed as part of the **Modern Application Development I (MAD I)
 - View personal parking history summary
 
 ---
+
 
